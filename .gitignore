@@ -1,0 +1,51 @@
+# Xcode
+.DS_Store
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+*.xcscmblueprint
+
+# Swift Package Manager
+.build/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+
+# Xcode Archives
+*.xcarchive
+
+# Playground
+timeline.xctimeline
+playground.xcworkspace
+
+# SwiftPM
+Package.resolved
+
+# Secrets
+xcshareddata/*.xcconfig
+
+# macOS
+*.swp
+*~
+
+# JetBrains
+.idea/
+
+# Generated
+*.app
+
+# Misc
+.env
