@@ -1,0 +1,38 @@
+{
+  "fill" : {
+    "solid" : "display-p3:0.08120,0.40482,0.96783,1.00000"
+  },
+  "groups" : [
+    {
+      "blur-material" : null,
+      "layers" : [
+        {
+          "fill" : "automatic",
+          "glass" : true,
+          "image-name" : "bolt.png",
+          "name" : "bolt",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -5,
+              27
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 1
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : "shared"
+  }
+}

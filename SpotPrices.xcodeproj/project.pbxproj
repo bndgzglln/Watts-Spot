@@ -26,6 +26,7 @@
 		96A53E173EB0736BF28C473B /* Translations-de.json in Resources */ = {isa = PBXBuildFile; fileRef = 968A00043D2B8A07B9D6D43C /* Translations-de.json */; };
 		9E50700F9A2EF23BE1E62B40 /* Translations-de.json in Resources */ = {isa = PBXBuildFile; fileRef = 53CEB3FC1C6C47344E6FCA8D /* Translations-de.json */; };
 		A3FFC0030395C1C3AFE1F125 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF4CAB88FFF74782C3B13709 /* Assets.xcassets */; };
+		A5D156622F859DA300682AA3 /* icon.icon in Resources */ = {isa = PBXBuildFile; fileRef = A5D156612F859DA300682AA3 /* icon.icon */; };
 		A734929866A7955F4287B531 /* SpotPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7AA02F20EDD6F7224E05C3 /* SpotPrice.swift */; };
 		B4714A0A4501BD6F86D9028D /* PriceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A88F45A4D3CCB72D247443A /* PriceViewModel.swift */; };
 		CA89E0876E7D34D94906931B /* SchedulerNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70470B024328C5104F21D424 /* SchedulerNotificationManager.swift */; };
@@ -106,6 +107,7 @@
 		7E7AA02F20EDD6F7224E05C3 /* SpotPrice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotPrice.swift; sourceTree = "<group>"; };
 		94ACF5C44DE38D1A8B53D00A /* Translations-en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Translations-en.json"; sourceTree = "<group>"; };
 		968A00043D2B8A07B9D6D43C /* Translations-de.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Translations-de.json"; sourceTree = "<group>"; };
+		A5D156612F859DA300682AA3 /* icon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = icon.icon; sourceTree = "<group>"; };
 		A8965AA26B53B993CC34FE2E /* ApplianceScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplianceScheduler.swift; sourceTree = "<group>"; };
 		B208101FB3AB8439E89E4B2D /* PriceWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceWidgetBundle.swift; sourceTree = "<group>"; };
 		BDDACC4E0CEE3AA48D464F14 /* PriceDetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceDetailRow.swift; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 			children = (
 				E3809600F2AC7C12802E08D4 /* ApplianceSchedulerView.swift */,
 				45B67B96530811AC21CC5D22 /* Assets.xcassets */,
+				A5D156612F859DA300682AA3 /* icon.icon */,
 				5FA69A758D9919143AF8371B /* ContentView.swift */,
 				23DA9696DAE26607B01AC0B6 /* DetailsView.swift */,
 				33997E03C41E9DE97323F77D /* HomeView.swift */,
@@ -319,6 +322,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				681D2144E9323409FB024FB5 /* Assets.xcassets in Resources */,
+				A5D156622F859DA300682AA3 /* icon.icon in Resources */,
 				9E50700F9A2EF23BE1E62B40 /* Translations-de.json in Resources */,
 				647CBA96FA832F40590458AD /* Translations-en.json in Resources */,
 			);
@@ -574,9 +578,10 @@
 		AC57955674961ED52A0163AD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = icon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -681,9 +686,10 @@
 		ED63C89FF0690A89261B4BFD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = icon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
