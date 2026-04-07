@@ -222,8 +222,7 @@ struct CurrentPriceWidgetEntryView: View {
                         x: .value("Time", price.timestamp),
                         y: .value("Price", price.pricePerKWh * 100)
                     )
-                    .foregroundStyle(barStyle(for: price))
-                    .cornerRadius(3)
+                    .foregroundStyle(price.pricePerKWh >= 0 ? Color.orange : Color.green)
                 }
                 .chartXAxis {
                     AxisMarks(values: .stride(by: .hour, count: 4)) { _ in
@@ -236,7 +235,7 @@ struct CurrentPriceWidgetEntryView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .padding(14)
+        .padding(10)
     }
 
     @ViewBuilder
