@@ -117,78 +117,72 @@ struct CurrentPriceWidgetEntryView: View {
                 let minPrice = entry.minPrice,
                 let maxPrice = entry.maxPrice
             {
-                let size = min(geometry.size.width, geometry.size.height)
-                let lineWidth = size * 0.12
+                let width = geometry.size.width
+                let height = geometry.size.height
+                let gaugeSize = min(width, height) * 0.8
+                let lineWidth: CGFloat = 12
                 let ratio = normalizedRatio(for: current.pricePerMWh, min: minPrice.pricePerMWh, max: maxPrice.pricePerMWh)
 
-                ZStack {
-                    DialArcShape(startRatio: 0, endRatio: 1)
-                        .stroke(
-                            AngularGradient(
-                                gradient: Gradient(colors: [.green, .gray, .red]),
-                                center: .center,
-                                startAngle: .degrees(150),
-                                endAngle: .degrees(390)
-                            ),
-                            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                        )
-                        .opacity(0.22)
+                VStack(spacing: 0) {
+                    ZStack {
+                        DialArcShape(startRatio: 0, endRatio: 1)
+                            .stroke(
+                                AngularGradient(
+                                    gradient: Gradient(colors: [.green, .gray, .red]),
+                                    center: .center,
+                                    startAngle: .degrees(150),
+                                    endAngle: .degrees(390)
+                                ),
+                                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                            )
+                            .opacity(0.22)
 
-                    DialArcShape(startRatio: 0, endRatio: ratio)
-                        .stroke(
-                            AngularGradient(
-                                gradient: Gradient(colors: [.green, .gray, .red]),
-                                center: .center,
-                                startAngle: .degrees(150),
-                                endAngle: .degrees(390)
-                            ),
-                            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                        )
+                        DialArcShape(startRatio: 0, endRatio: ratio)
+                            .stroke(
+                                AngularGradient(
+                                    gradient: Gradient(colors: [.green, .gray, .red]),
+                                    center: .center,
+                                    startAngle: .degrees(150),
+                                    endAngle: .degrees(390)
+                                ),
+                                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                            )
 
-                    VStack(spacing: 2) {
                         Text(current.priceValueText)
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .font(.system(size: 26, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .lineLimit(1)
-                            .minimumScaleFactor(0.65)
-                            .frame(maxWidth: size * 0.50)
-
-                        Text(current.shortTimeLabel)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                            .allowsTightening(true)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(width: gaugeSize, height: gaugeSize)
 
-                    VStack {
-                        Spacer()
-
-                        HStack(alignment: .bottom) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("min")
+                                .font(.system(size: 9))
+                                .foregroundStyle(.secondary)
                             Text(minPrice.priceValueText)
-                                .font(.footnote.weight(.semibold))
+                                .font(.system(size: 13, weight: .semibold))
                                 .foregroundStyle(.green)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.65)
-                                .allowsTightening(true)
-                                .frame(maxWidth: size * 0.35, alignment: .leading)
-
-                            Spacer()
-
-                            Text(maxPrice.priceValueText)
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(.red)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.65)
-                                .allowsTightening(true)
-                                .frame(maxWidth: size * 0.35, alignment: .trailing)
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.bottom, 8)
+                        
+                        Spacer()
+                        
+                        VStack(alignment: .trailing, spacing: 0) {
+                            Text("max")
+                                .font(.system(size: 9))
+                                .foregroundStyle(.secondary)
+                            Text(maxPrice.priceValueText)
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.red)
+                        }
                     }
+                    .padding(.horizontal, 8)
+                    
+                    Text(current.shortTimeLabel)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(width: width, height: height)
             } else {
                 unavailableView
             }
@@ -309,14 +303,14 @@ struct DialArcShape: Shape {
     let endRatio: Double
 
     func path(in rect: CGRect) -> Path {
-        let inset: CGFloat = min(rect.width, rect.height) * 0.13
+        let inset: CGFloat = 0
         let drawingRect = rect.insetBy(dx: inset, dy: inset)
         let startAngle = Angle.degrees(150 + (240 * startRatio))
         let endAngle = Angle.degrees(150 + (240 * endRatio))
 
         var path = Path()
         path.addArc(
-            center: CGPoint(x: drawingRect.midX, y: drawingRect.midY + 8),
+            center: CGPoint(x: drawingRect.midX, y: drawingRect.midY + 2),
             radius: min(drawingRect.width, drawingRect.height) / 2,
             startAngle: startAngle,
             endAngle: endAngle,

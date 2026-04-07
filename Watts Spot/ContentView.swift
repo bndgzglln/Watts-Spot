@@ -9,7 +9,7 @@ struct ContentView: View {
     
     private var selectedLocale: Locale {
         guard let language = AppLanguage(rawValue: selectedLanguageCode) else {
-            return Locale(identifier: "en")
+            return Locale.current
         }
 
         return Locale(identifier: language.resolvedLanguageCode)

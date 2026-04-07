@@ -1,10 +1,80 @@
 import Foundation
 
+public enum ApplianceRunMode: String, Codable, CaseIterable, Identifiable {
+    case parallel
+    case sequential
+    
+    public var id: String { rawValue }
+    
+    public var titleKey: String {
+        switch self {
+        case .parallel: return "scheduler.run_mode_parallel"
+        case .sequential: return "scheduler.run_mode_sequential"
+        }
+    }
+}
+
+public struct ApplianceChain: Identifiable, Codable, Hashable {
+    public let id: UUID
+    public var name: String
+    public var appliances: [ApplianceShortcut]
+    public var runMode: ApplianceRunMode
+    public var notificationEnabled: Bool
+    
+    public init(id: UUID = UUID(), name: String, appliances: [ApplianceShortcut] = [], runMode: ApplianceRunMode = .sequential, notificationEnabled: Bool = false) {
+        self.id = id
+        self.name = name
+        self.appliances = appliances
+        self.runMode = runMode
+        self.notificationEnabled = notificationEnabled
+    }
+    
+    public var totalDurationMinutes: Int {
+        switch runMode {
+        case .parallel:
+            return appliances.map(\.durationMinutes).max() ?? 0
+        case .sequential:
+            return appliances.reduce(0) { $0 + $1.durationMinutes }
+        }
+    }
+    
+    public var totalEnergyConsumptionKwh: Double {
+        appliances.reduce(0) { $0 + $1.energyConsumptionKwh }
+    }
+    
+    public var sortedAppliances: [ApplianceShortcut] {
+        appliances.sorted { $0.orderIndex < $1.orderIndex }
+    }
+}
+
 public struct ApplianceShortcut: Identifiable, Codable, Hashable {
     public let id: UUID
     public var name: String
     public var taskType: TaskType
     public var durationMinutes: Int
+    public var notificationEnabled: Bool
+    public var notificationRepeat: NotificationRepeat
+    public var notificationLeadTimeMinutes: Int
+    public var energyConsumptionKwh: Double
+    public var preferredStartTime: Date?
+    public var preferredEndTime: Date?
+    public var orderIndex: Int
+    
+    public enum NotificationRepeat: String, Codable, CaseIterable, Identifiable {
+        case oneTime = "one_time"
+        case daily = "daily"
+        case weekly = "weekly"
+        
+        public var id: String { rawValue }
+        
+        public var titleKey: String {
+            switch self {
+            case .oneTime: return "scheduler.notification_one_time"
+            case .daily: return "scheduler.notification_daily"
+            case .weekly: return "scheduler.notification_weekly"
+            }
+        }
+    }
     
     public enum TaskType: Codable, Hashable, Identifiable {
         case predefined(PredefinedType)
@@ -67,11 +137,31 @@ public struct ApplianceShortcut: Identifiable, Codable, Hashable {
         }
     }
     
-    public init(id: UUID = UUID(), name: String, taskType: TaskType, durationMinutes: Int) {
+    public init(id: UUID = UUID(), name: String, taskType: TaskType, durationMinutes: Int, notificationEnabled: Bool = false, notificationRepeat: NotificationRepeat = .oneTime, notificationLeadTimeMinutes: Int = 30, energyConsumptionKwh: Double = 0.0, preferredStartTime: Date? = nil, preferredEndTime: Date? = nil, orderIndex: Int = 0) {
         self.id = id
         self.name = name
         self.taskType = taskType
         self.durationMinutes = durationMinutes
+        self.notificationEnabled = notificationEnabled
+        self.notificationRepeat = notificationRepeat
+        self.notificationLeadTimeMinutes = notificationLeadTimeMinutes
+        self.energyConsumptionKwh = energyConsumptionKwh
+        self.preferredStartTime = preferredStartTime
+        self.preferredEndTime = preferredEndTime
+        self.orderIndex = orderIndex
+    }
+    
+    public var leadTimeFormatted: String {
+        if notificationLeadTimeMinutes < 60 {
+            return "\(notificationLeadTimeMinutes) min"
+        } else {
+            let hours = notificationLeadTimeMinutes / 60
+            let minutes = notificationLeadTimeMinutes % 60
+            if minutes == 0 {
+                return "\(hours) h"
+            }
+            return "\(hours) h \(minutes) min"
+        }
     }
     
     public var durationFormatted: String {

@@ -11,7 +11,6 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 notificationSection
-                languageSection
                 regionSection
             }
             .navigationTitle(L10n.text("settings.navigation_title"))
@@ -43,19 +42,7 @@ struct SettingsView: View {
         }
     }
 
-    private var languageSection: some View {
-        Section(L10n.text("settings.language_section")) {
-            Picker(L10n.text("settings.language_picker"), selection: $selectedLanguageCode) {
-                ForEach(L10n.supportedLanguages) { language in
-                    Text(L10n.text(language.titleKey))
-                        .tag(language.rawValue)
-                }
-            }
-            .pickerStyle(.navigationLink)
-        }
-    }
-
-    private var regionSection: some View {
+private var regionSection: some View {
         Section(L10n.text("settings.region_section")) {
             Picker(L10n.text("settings.bidding_zone"), selection: $selectedRegionCode) {
                 ForEach(PriceRegionCatalog.presets) { region in

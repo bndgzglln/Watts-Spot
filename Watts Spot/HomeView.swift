@@ -89,6 +89,9 @@ struct HomeView: View {
                     Text(selected.priceText)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                    Text(selected.intervalLabel)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 } else if !entries.isEmpty {
                     Text(L10n.format("price.avg_suffix", (averagePrice * 100).formatted(.number.precision(.fractionLength(2)))))
                         .font(.subheadline)
