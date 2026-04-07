@@ -6,6 +6,7 @@ struct PriceChartSection: View {
     let entries: [SpotPrice]
     @Binding var selectedEntry: SpotPrice?
     let colorForEntry: (SpotPrice) -> Color
+    var showNowLine: Bool = true
     @Environment(\.colorScheme) private var colorScheme
     
     private var averagePrice: Double {
@@ -43,9 +44,11 @@ struct PriceChartSection: View {
                     .foregroundStyle(.primary.opacity(0.5))
             }
             
-            RuleMark(x: .value("Now", Date()))
-                .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
-                .foregroundStyle(nowLineColor)
+            if showNowLine {
+                RuleMark(x: .value("Now", Date()))
+                    .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
+                    .foregroundStyle(nowLineColor)
+            }
             
             RuleMark(y: .value("Average", averagePrice * 100))
                 .lineStyle(StrokeStyle(lineWidth: 2))

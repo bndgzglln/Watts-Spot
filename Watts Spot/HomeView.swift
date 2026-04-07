@@ -111,7 +111,8 @@ struct HomeView: View {
                 selectedEntry: $selectedChartEntry,
                 colorForEntry: { entry in
                     viewModel.color(for: entry, within: entries)
-                }
+                },
+                showNowLine: selectedDay == .today
             )
         }
         .padding(18)

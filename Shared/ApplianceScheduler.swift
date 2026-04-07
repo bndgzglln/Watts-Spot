@@ -1,52 +1,5 @@
 import Foundation
 
-public enum ApplianceRunMode: String, Codable, CaseIterable, Identifiable {
-    case parallel
-    case sequential
-    
-    public var id: String { rawValue }
-    
-    public var titleKey: String {
-        switch self {
-        case .parallel: return "scheduler.run_mode_parallel"
-        case .sequential: return "scheduler.run_mode_sequential"
-        }
-    }
-}
-
-public struct ApplianceChain: Identifiable, Codable, Hashable {
-    public let id: UUID
-    public var name: String
-    public var appliances: [ApplianceShortcut]
-    public var runMode: ApplianceRunMode
-    public var notificationEnabled: Bool
-    
-    public init(id: UUID = UUID(), name: String, appliances: [ApplianceShortcut] = [], runMode: ApplianceRunMode = .sequential, notificationEnabled: Bool = false) {
-        self.id = id
-        self.name = name
-        self.appliances = appliances
-        self.runMode = runMode
-        self.notificationEnabled = notificationEnabled
-    }
-    
-    public var totalDurationMinutes: Int {
-        switch runMode {
-        case .parallel:
-            return appliances.map(\.durationMinutes).max() ?? 0
-        case .sequential:
-            return appliances.reduce(0) { $0 + $1.durationMinutes }
-        }
-    }
-    
-    public var totalEnergyConsumptionKwh: Double {
-        appliances.reduce(0) { $0 + $1.energyConsumptionKwh }
-    }
-    
-    public var sortedAppliances: [ApplianceShortcut] {
-        appliances.sorted { $0.orderIndex < $1.orderIndex }
-    }
-}
-
 public struct ApplianceShortcut: Identifiable, Codable, Hashable {
     public let id: UUID
     public var name: String

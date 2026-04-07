@@ -565,6 +565,8 @@ struct ShortcutEditorView: View {
     @State private var taskType: ApplianceShortcut.TaskType
     @State private var customTaskText: String
     @State private var durationMinutes: Int
+    @State private var notificationEnabled: Bool
+    @State private var notificationLeadTimeMinutes: Int
     
     let editingShortcut: ApplianceShortcut?
     let onSave: (ApplianceShortcut) -> Void
@@ -582,6 +584,8 @@ struct ShortcutEditorView: View {
             _customTaskText = State(initialValue: "")
         }
         _durationMinutes = State(initialValue: shortcut?.durationMinutes ?? 60)
+        _notificationEnabled = State(initialValue: shortcut?.notificationEnabled ?? false)
+        _notificationLeadTimeMinutes = State(initialValue: shortcut?.notificationLeadTimeMinutes ?? 30)
     }
     
     private static func extractCustomText(from type: ApplianceShortcut.TaskType) -> String {
@@ -619,6 +623,19 @@ struct ShortcutEditorView: View {
                     }
                     .pickerStyle(.menu)
                 }
+                
+                Section(L10n.text("scheduler.notification_section")) {
+                    Toggle(L10n.text("scheduler.notification_enable"), isOn: $notificationEnabled)
+                    
+                    if notificationEnabled {
+                        Picker(L10n.text("scheduler.notification_lead_time"), selection: $notificationLeadTimeMinutes) {
+                            ForEach(leadTimeOptions, id: \.self) { minutes in
+                                Text(formatLeadTime(minutes)).tag(minutes)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+                }
             }
             .navigationTitle(editingShortcut == nil ? L10n.text("scheduler.add_shortcut") : L10n.text("scheduler.edit_shortcut"))
             .navigationBarTitleDisplayMode(.inline)
@@ -640,7 +657,9 @@ struct ShortcutEditorView: View {
                             id: editingShortcut?.id ?? UUID(),
                             name: name,
                             taskType: finalTaskType,
-                            durationMinutes: durationMinutes
+                            durationMinutes: durationMinutes,
+                            notificationEnabled: notificationEnabled,
+                            notificationLeadTimeMinutes: notificationLeadTimeMinutes
                         )
                         onSave(shortcut)
                         dismiss()
@@ -674,6 +693,23 @@ struct ShortcutEditorView: View {
             }
         }
         return options
+    }
+    
+    private var leadTimeOptions: [Int] {
+        [5, 10, 15, 20, 30, 45, 60, 90, 120]
+    }
+    
+    private func formatLeadTime(_ minutes: Int) -> String {
+        if minutes < 60 {
+            return "\(minutes) min"
+        } else {
+            let hours = minutes / 60
+            let mins = minutes % 60
+            if mins == 0 {
+                return "\(hours) h"
+            }
+            return "\(hours) h \(mins) min"
+        }
     }
 }
 
