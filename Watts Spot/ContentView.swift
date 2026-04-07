@@ -1,4 +1,5 @@
 import SwiftUI
+import SpotPriceKit
 
 struct ContentView: View {
     @StateObject private var viewModel = PriceViewModel()
@@ -39,6 +40,11 @@ struct ContentView: View {
             DetailsView(viewModel: viewModel, selectedDay: $selectedDay)
                 .tabItem {
                     Label(L10n.text("app.details_tab"), systemImage: "list.bullet.rectangle")
+                }
+            
+            ApplianceSchedulerView(viewModel: viewModel)
+                .tabItem {
+                    Label(L10n.text("app.scheduler_tab"), systemImage: "washer.fill")
                 }
 
             SettingsView(

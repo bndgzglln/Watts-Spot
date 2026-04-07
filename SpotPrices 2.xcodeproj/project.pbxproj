@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		0BC9CD7DE3D69DEB6B87B700 /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23DA9696DAE26607B01AC0B6 /* DetailsView.swift */; };
 		1697F846465E509FA716E5C1 /* EnergyChartsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13641203A59E4DD4407F7D25 /* EnergyChartsAPI.swift */; };
-		1C8F5D3584BF1304A2C0562A /* ApplianceSchedulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3809600F2AC7C12802E08D4 /* ApplianceSchedulerView.swift */; };
 		1F350A9D83832914872A0B88 /* SpotPriceKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E7755ABBE830367E3DE8E050 /* SpotPriceKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3075E6C40EAD0B85D349728A /* CurrentPriceWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB887AF50CE894601F03E4B1 /* CurrentPriceWidget.swift */; };
 		537E3556EF6D405976C6BAE3 /* SpotPriceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E7755ABBE830367E3DE8E050 /* SpotPriceKit.framework */; };
@@ -34,7 +33,6 @@
 		F36EC89C5D955E8DB29405F4 /* PriceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172BA0BC8AC4BAA7DFB43631 /* PriceApp.swift */; };
 		FA96904879771C4C242EDCCE /* PriceSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E6F18CD3F816D77B0A06E9 /* PriceSummaryCard.swift */; };
 		FCE73AAD0BD3820C89F52E45 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33997E03C41E9DE97323F77D /* HomeView.swift */; };
-		FD6AB89B8C4FD8F42040DB13 /* ApplianceScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8965AA26B53B993CC34FE2E /* ApplianceScheduler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,7 +102,6 @@
 		7E7AA02F20EDD6F7224E05C3 /* SpotPrice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotPrice.swift; sourceTree = "<group>"; };
 		94ACF5C44DE38D1A8B53D00A /* Translations-en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Translations-en.json"; sourceTree = "<group>"; };
 		968A00043D2B8A07B9D6D43C /* Translations-de.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Translations-de.json"; sourceTree = "<group>"; };
-		A8965AA26B53B993CC34FE2E /* ApplianceScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplianceScheduler.swift; sourceTree = "<group>"; };
 		B208101FB3AB8439E89E4B2D /* PriceWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceWidgetBundle.swift; sourceTree = "<group>"; };
 		BDDACC4E0CEE3AA48D464F14 /* PriceDetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceDetailRow.swift; sourceTree = "<group>"; };
 		C63110F7000E5D7F098B3A39 /* Translations-en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Translations-en.json"; sourceTree = "<group>"; };
@@ -112,7 +109,6 @@
 		CE86AEF65CCC0E13D60E9219 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D82F2354B8DA6220DBD898A2 /* PriceRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceRegion.swift; sourceTree = "<group>"; };
 		E297473CFDEC6C7E5D440E30 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		E3809600F2AC7C12802E08D4 /* ApplianceSchedulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplianceSchedulerView.swift; sourceTree = "<group>"; };
 		E7755ABBE830367E3DE8E050 /* SpotPriceKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SpotPriceKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4CAB88FFF74782C3B13709 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -140,7 +136,6 @@
 		0F032E771789680311FEB70F /* Watts Spot */ = {
 			isa = PBXGroup;
 			children = (
-				E3809600F2AC7C12802E08D4 /* ApplianceSchedulerView.swift */,
 				45B67B96530811AC21CC5D22 /* Assets.xcassets */,
 				5FA69A758D9919143AF8371B /* ContentView.swift */,
 				23DA9696DAE26607B01AC0B6 /* DetailsView.swift */,
@@ -174,7 +169,6 @@
 		5208E5222E8F7ACA15074AA6 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				A8965AA26B53B993CC34FE2E /* ApplianceScheduler.swift */,
 				13641203A59E4DD4407F7D25 /* EnergyChartsAPI.swift */,
 				14C0014882929F1BE58C667D /* L10n.swift */,
 				D82F2354B8DA6220DBD898A2 /* PriceRegion.swift */,
@@ -338,7 +332,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FD6AB89B8C4FD8F42040DB13 /* ApplianceScheduler.swift in Sources */,
 				1697F846465E509FA716E5C1 /* EnergyChartsAPI.swift in Sources */,
 				D08F3CB340EA9776A229FC43 /* L10n.swift in Sources */,
 				813CBAA45D0C390D530CEE3B /* PriceRegion.swift in Sources */,
@@ -359,7 +352,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1C8F5D3584BF1304A2C0562A /* ApplianceSchedulerView.swift in Sources */,
 				903B2B489CEE1708558C6C8D /* ContentView.swift in Sources */,
 				0BC9CD7DE3D69DEB6B87B700 /* DetailsView.swift in Sources */,
 				FCE73AAD0BD3820C89F52E45 /* HomeView.swift in Sources */,
@@ -566,7 +558,6 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Watts Spot";
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -672,7 +663,6 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Watts Spot";
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

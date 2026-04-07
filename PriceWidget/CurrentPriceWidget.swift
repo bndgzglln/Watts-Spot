@@ -1,6 +1,7 @@
 import Charts
 import SwiftUI
 import WidgetKit
+import SpotPriceKit
 
 struct CurrentPriceEntry: TimelineEntry {
     let date: Date
@@ -83,6 +84,7 @@ struct CurrentPriceProvider: TimelineProvider {
 
 struct CurrentPriceWidgetEntryView: View {
     @Environment(\.widgetFamily) private var family
+    @Environment(\.colorScheme) private var colorScheme
 
     let entry: CurrentPriceProvider.Entry
 
@@ -99,7 +101,9 @@ struct CurrentPriceWidgetEntryView: View {
         }
         .containerBackground(for: .widget) {
             LinearGradient(
-                colors: [Color(red: 0.97, green: 0.99, blue: 0.97), Color(red: 0.90, green: 0.95, blue: 0.98)],
+                colors: colorScheme == .dark
+                    ? [Color(red: 0.15, green: 0.15, blue: 0.17), Color(red: 0.12, green: 0.14, blue: 0.18)]
+                    : [Color(red: 0.97, green: 0.99, blue: 0.97), Color(red: 0.90, green: 0.95, blue: 0.98)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -114,11 +118,8 @@ struct CurrentPriceWidgetEntryView: View {
                 let maxPrice = entry.maxPrice
             {
                 let size = min(geometry.size.width, geometry.size.height)
-                let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2 + 2)
-                let radius = size * 0.34
                 let lineWidth = size * 0.12
                 let ratio = normalizedRatio(for: current.pricePerMWh, min: minPrice.pricePerMWh, max: maxPrice.pricePerMWh)
-                let dotPoint = dialPoint(center: center, radius: radius, ratio: ratio)
 
                 ZStack {
                     DialArcShape(startRatio: 0, endRatio: 1)
@@ -143,15 +144,6 @@ struct CurrentPriceWidgetEntryView: View {
                             ),
                             style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                         )
-
-                    Circle()
-                        .fill(color(for: current.pricePerMWh, min: minPrice.pricePerMWh, max: maxPrice.pricePerMWh))
-                        .frame(width: lineWidth * 0.85, height: lineWidth * 0.85)
-                        .overlay(
-                            Circle()
-                                .stroke(.white, lineWidth: 3)
-                        )
-                        .position(dotPoint)
 
                     VStack(spacing: 2) {
                         Text(current.priceValueText)
@@ -268,14 +260,14 @@ struct CurrentPriceWidgetEntryView: View {
     }
 
     private func barStyle(for price: SpotPrice) -> some ShapeStyle {
-        let fill = color(
+        let fill = chartColor(
             for: price.pricePerMWh,
-            min: entry.minPrice?.pricePerMWh ?? price.pricePerMWh,
-            max: entry.maxPrice?.pricePerMWh ?? price.pricePerMWh
+            minPrice: entry.minPrice?.pricePerMWh ?? price.pricePerMWh,
+            maxPrice: entry.maxPrice?.pricePerMWh ?? price.pricePerMWh
         )
 
         if price.id == entry.currentPrice?.id {
-            return AnyShapeStyle(.white)
+            return AnyShapeStyle(colorScheme == .dark ? Color.white.opacity(0.3) : Color.white)
         }
 
         return AnyShapeStyle(fill)
@@ -295,24 +287,20 @@ struct CurrentPriceWidgetEntryView: View {
         )
     }
 
-    private func color(for price: Double, min: Double, max: Double) -> Color {
-        let ratio = normalizedRatio(for: price, min: min, max: max)
-
-        if ratio < 0.5 {
-            let localRatio = ratio / 0.5
-            return Color(
-                red: 0.18 + (0.42 * localRatio),
-                green: 0.70 - (0.08 * localRatio),
-                blue: 0.28 - (0.02 * localRatio)
-            )
+    private func chartColor(for price: Double, minPrice: Double, maxPrice: Double) -> Color {
+        let priceInCents = price / 10
+        
+        if priceInCents <= 0 {
+            return Color.green
         }
-
-        let localRatio = (ratio - 0.5) / 0.5
-        return Color(
-            red: 0.60 + (0.26 * localRatio),
-            green: 0.62 - (0.38 * localRatio),
-            blue: 0.26 - (0.10 * localRatio)
-        )
+        
+        let normalizedRatio = min(priceInCents / 30.0, 1.0)
+        
+        let red = 0.6 + (0.35 * normalizedRatio)
+        let green = 0.35 * (1 - normalizedRatio)
+        let blue = 0.05 * (1 - normalizedRatio)
+        
+        return Color(red: red, green: green, blue: blue)
     }
 }
 
