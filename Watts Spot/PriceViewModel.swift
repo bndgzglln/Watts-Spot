@@ -225,14 +225,7 @@ final class PriceViewModel: ObservableObject {
             return Color.green
         }
         
-        let maxPrice = 30.0
-        let normalizedRatio = min(priceInCents / maxPrice, 1.0)
-        
-        let red = 0.6 + (0.35 * normalizedRatio)
-        let green = 0.35 * (1 - normalizedRatio)
-        let blue = 0.05 * (1 - normalizedRatio)
-        
-        return Color(red: red, green: green, blue: blue)
+        return .orange
     }
 
     private func distribute(_ entries: [SpotPrice], now: Date) {

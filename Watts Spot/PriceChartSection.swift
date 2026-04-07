@@ -22,20 +22,17 @@ struct PriceChartSection: View {
         } else {
             VStack(alignment: .leading, spacing: 8) {
                 chartView
-                legendView
             }
         }
     }
     
     private var chartView: some View {
-        Chart {
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        return Chart {
             ForEach(entries) { entry in
-                BarMark(
-                    x: .value("Time", entry.timestamp),
-                    y: .value("Price", entry.pricePerKWh * 100)
-                )
-                .foregroundStyle(barColor(for: entry))
-                .cornerRadius(4)
+                PriceBarMark(entry: entry, isSelected: entry.id == selectedEntry?.id, baseColor: colorForEntry(entry))
             }
             
             if let selected = selectedEntry {
@@ -52,14 +49,15 @@ struct PriceChartSection: View {
             
             RuleMark(y: .value("Average", averagePrice * 100))
                 .lineStyle(StrokeStyle(lineWidth: 2))
-                .foregroundStyle(.orange)
+                .foregroundStyle(Color(red: 0.4, green: 0.55, blue: 0.75))
         }
+        .chartXScale(domain: [startOfDay, endOfDay])
         .chartYAxisLabel("ct/kWh")
         .chartXAxis {
             AxisMarks(values: .stride(by: .hour, count: 3)) { _ in
                 AxisGridLine()
                 AxisTick()
-                AxisValueLabel(format: .dateTime.hour())
+                AxisValueLabel(format: .dateTime.hour(), centered: true)
             }
         }
         .chartOverlay { proxy in
@@ -115,27 +113,23 @@ struct PriceChartSection: View {
             abs($0.timestamp.timeIntervalSince(date)) < abs($1.timestamp.timeIntervalSince(date))
         })
     }
+}
+
+struct PriceBarMark: ChartContent {
+    let entry: SpotPrice
+    let isSelected: Bool
+    let baseColor: Color
     
-    private var legendView: some View {
-        HStack {
-            Label(L10n.text("chart.low"), systemImage: "circle.fill")
-                .foregroundStyle(Color.green)
-
-            Spacer()
-            
-            HStack(spacing: 4) {
-                Rectangle()
-                    .fill(.orange)
-                    .frame(width: 16, height: 2)
-                Text(L10n.format("price.avg_suffix", (averagePrice * 100).formatted(.number.precision(.fractionLength(2)))))
-                    .font(.caption.weight(.medium))
-            }
-
-            Spacer()
-
-            Label(L10n.text("chart.high"), systemImage: "circle.fill")
-                .foregroundStyle(Color(red: 0.95, green: 0.05, blue: 0.05))
-        }
-        .font(.caption.weight(.medium))
+    var body: some ChartContent {
+        BarMark(
+            x: .value("Time", entry.timestamp),
+            y: .value("Price", entry.pricePerKWh * 100)
+        )
+        .foregroundStyle(barColor)
+        .cornerRadius(4)
+    }
+    
+    private var barColor: Color {
+        isSelected ? baseColor.opacity(0.6) : baseColor
     }
 }
