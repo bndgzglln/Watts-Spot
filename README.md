@@ -1,4 +1,6 @@
-# SpotPrice
+# Watts the Price
+
+Vibe Coded
 
 SwiftUI iPhone app for Austria spot electricity prices using the Energy Charts API:
 
