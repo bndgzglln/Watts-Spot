@@ -46,6 +46,11 @@ struct ApplianceSchedulerView: View {
                     viewModel.saveShortcut(shortcut)
                 }
             }
+            .alert(viewModel.errorAlertTitle, isPresented: $viewModel.showingErrorAlert) {
+                Button(L10n.text("common.ok"), role: .cancel) {}
+            } message: {
+                Text(viewModel.errorAlertMessage)
+            }
         }
     }
     
@@ -86,54 +91,35 @@ struct ApplianceSchedulerView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     
-                    if viewModel.isQuickStartEndFixed {
-                        HStack {
-                            Text(L10n.text("scheduler.finish_by"))
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            DatePicker("", selection: Binding(
-                                get: { viewModel.quickStartEndTime },
-                                set: { newValue in
-                                    viewModel.quickStartEndTime = newValue
-                                    let cal = Calendar.current
-                                    viewModel.quickStartStartTime = cal.date(byAdding: .minute, value: -viewModel.selectedDurationMinutes, to: newValue) ?? newValue
-                                }
-                            ), displayedComponents: [.hourAndMinute, .date])
-                            .labelsHidden()
-                        }
-                    } else {
-                        HStack {
-                            Text(L10n.text("scheduler.start_at"))
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            DatePicker("", selection: Binding(
-                                get: { viewModel.quickStartStartTime },
-                                set: { newValue in
-                                    viewModel.quickStartStartTime = newValue
-                                    let cal = Calendar.current
-                                    viewModel.quickStartEndTime = cal.date(byAdding: .minute, value: viewModel.selectedDurationMinutes, to: newValue) ?? newValue
-                                }
-                            ), displayedComponents: [.hourAndMinute, .date])
-                            .labelsHidden()
+                    Picker("", selection: $viewModel.selectedDayFilter) {
+                        Text(L10n.text("price.today")).tag(DayFilter.today)
+                        if !priceViewModel.tomorrowEntries.isEmpty {
+                            Text(L10n.text("price.day_ahead")).tag(DayFilter.tomorrow)
+                            Text(L10n.text("scheduler.all_days")).tag(DayFilter.all)
                         }
                     }
+                    .pickerStyle(.segmented)
+                }
+                
+                HStack(spacing: 12) {
+                    Picker("", selection: $viewModel.isQuickStartEndFixed) {
+                        Text(L10n.text("scheduler.start_at")).tag(false)
+                        Text(L10n.text("scheduler.finish_by")).tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: .infinity)
                     
-                    Button {
-                        viewModel.isQuickStartEndFixed.toggle()
-                    } label: {
-                        Text(viewModel.isQuickStartEndFixed ? L10n.text("scheduler.switch_to_start") : L10n.text("scheduler.switch_to_finish"))
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    }
+                    DatePicker("", selection: $viewModel.quickStartTime, displayedComponents: [.hourAndMinute])
+                        .labelsHidden()
+                        .frame(width: 100)
                 }
                 
                 Button {
+                    let timeConstraint = viewModel.timeConstraint(for: priceViewModel)
                     viewModel.findCheapestWindow(
                         entriesProvider: { priceViewModel.entries(for: viewModel.selectedDayFilter) },
-                        preferredStartTime: viewModel.isQuickStartEndFixed ? nil : viewModel.quickStartStartTime,
-                        preferredEndTime: viewModel.isQuickStartEndFixed ? viewModel.quickStartEndTime : nil
+                        preferredStartTime: timeConstraint.start,
+                        preferredEndTime: timeConstraint.end
                     )
                 } label: {
                     Label(L10n.text("scheduler.find_cheapest"), systemImage: "bolt.magnifyingglass")
@@ -175,9 +161,12 @@ struct ApplianceSchedulerView: View {
                     ForEach(viewModel.shortcuts) { shortcut in
                         ShortcutRowView(shortcut: shortcut) {
                             viewModel.selectedDurationMinutes = shortcut.durationMinutes
-                            viewModel.findCheapestWindow {
-                                priceViewModel.entries(for: viewModel.selectedDayFilter)
-                            }
+                            let timeConstraint = viewModel.timeConstraint(for: priceViewModel)
+                            viewModel.findCheapestWindow(
+                                entriesProvider: { priceViewModel.entries(for: viewModel.selectedDayFilter) },
+                                preferredStartTime: timeConstraint.start,
+                                preferredEndTime: timeConstraint.end
+                            )
                         }
                         .contextMenu {
                             Button {
@@ -717,15 +706,17 @@ struct ShortcutEditorView: View {
 final class ApplianceSchedulerViewModel: ObservableObject {
     @Published var shortcuts: [ApplianceShortcut] = []
     @Published var selectedDurationMinutes: Int = 60
-    @Published var selectedDayFilter: DayFilter = .all
+    @Published var selectedDayFilter: DayFilter = .today
     @Published var cheapestWindow: CheapestWindow?
     @Published var isSearching: Bool = false
     @Published var showingShortcutEditor: Bool = false
     @Published var editingShortcut: ApplianceShortcut?
-    @Published var quickStartStartTime: Date = Date()
-    @Published var quickStartEndTime: Date = Date()
-    @Published var isQuickStartEndFixed: Bool = false
     @Published var showingResultSheet: Bool = false
+    @Published var showingErrorAlert: Bool = false
+    @Published var errorAlertTitle: String = ""
+    @Published var errorAlertMessage: String = ""
+    @Published var quickStartTime: Date = Date()
+    @Published var isQuickStartEndFixed: Bool = false
     
     private let userDefaults = UserDefaults.standard
     private let shortcutsKey = "applianceShortcuts"
@@ -749,34 +740,84 @@ final class ApplianceSchedulerViewModel: ObservableObject {
         loadShortcuts()
     }
     
+    func timeConstraint(for priceViewModel: PriceViewModel) -> (start: Date?, end: Date?) {
+        let calendar = Calendar.current
+        let timeComponents = calendar.dateComponents([.hour, .minute], from: quickStartTime)
+        
+        // Determine the base date based on selected day filter
+        let baseDate: Date
+        switch selectedDayFilter {
+        case .today:
+            baseDate = calendar.startOfDay(for: Date())
+        case .tomorrow:
+            baseDate = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: Date())) ?? Date()
+        case .all:
+            // For "all days", use today's date as base
+            baseDate = calendar.startOfDay(for: Date())
+        }
+        
+        // Combine base date with selected time
+        var combinedComponents = calendar.dateComponents([.year, .month, .day], from: baseDate)
+        combinedComponents.hour = timeComponents.hour
+        combinedComponents.minute = timeComponents.minute
+        let constrainedTime = calendar.date(from: combinedComponents) ?? quickStartTime
+        
+        if isQuickStartEndFixed {
+            // Finish by: return end time constraint
+            return (start: nil, end: constrainedTime)
+        } else {
+            // Start at: return start time constraint
+            return (start: constrainedTime, end: nil)
+        }
+    }
+    
     func findCheapestWindow(entriesProvider: () -> [SpotPrice], preferredStartTime: Date? = nil, preferredEndTime: Date? = nil) {
-        var entries = entriesProvider()
-        guard !entries.isEmpty else { return }
+        let allEntries = entriesProvider()
+        guard !allEntries.isEmpty else { return }
         guard selectedDurationMinutes > 0 else { return }
         
+        // Validate that the requested window fits within available data
+        let calendar = Calendar.current
+        let durationInterval = TimeInterval(selectedDurationMinutes * 60)
+        
         if let startTime = preferredStartTime {
-            let calendar = Calendar.current
-            let startHour = calendar.component(.hour, from: startTime)
-            let startMinute = calendar.component(.minute, from: startTime)
-            entries = entries.filter { entry in
-                let hour = calendar.component(.hour, from: entry.timestamp)
-                let minute = calendar.component(.minute, from: entry.timestamp)
-                return hour > startHour || (hour == startHour && minute >= startMinute)
+            let requiredEndTime = startTime.addingTimeInterval(durationInterval)
+            // Check if we have data covering the full duration from start time
+            if let lastEntry = allEntries.last, requiredEndTime > lastEntry.intervalEnd {
+                errorAlertTitle = L10n.text("scheduler.error_outside_data_range_title")
+                errorAlertMessage = L10n.text("scheduler.error_outside_data_range_message")
+                showingErrorAlert = true
+                return
             }
         }
         
         if let endTime = preferredEndTime {
-            let calendar = Calendar.current
-            let endHour = calendar.component(.hour, from: endTime)
-            let endMinute = calendar.component(.minute, from: endTime)
-            entries = entries.filter { entry in
-                let hour = calendar.component(.hour, from: entry.timestamp)
-                let minute = calendar.component(.minute, from: entry.timestamp)
-                return hour < endHour || (hour == endHour && minute <= endMinute)
+            let requiredStartTime = endTime.addingTimeInterval(-durationInterval)
+            // Check if we have data covering the full duration ending at end time
+            if let firstEntry = allEntries.first, requiredStartTime < firstEntry.timestamp {
+                errorAlertTitle = L10n.text("scheduler.error_outside_data_range_title")
+                errorAlertMessage = L10n.text("scheduler.error_outside_data_range_message")
+                showingErrorAlert = true
+                return
             }
         }
         
+        var entries = allEntries
+        
+        // Filter entries by comparing actual timestamps, not just hour/minute
+        // This ensures proper handling when tomorrow's data is available
+        if let startTime = preferredStartTime {
+            entries = entries.filter { $0.timestamp >= startTime }
+        }
+        
+        if let endTime = preferredEndTime {
+            entries = entries.filter { $0.timestamp <= endTime }
+        }
+        
         guard !entries.isEmpty else {
+            errorAlertTitle = L10n.text("scheduler.error_outside_data_range_title")
+            errorAlertMessage = L10n.text("scheduler.error_outside_data_range_message")
+            showingErrorAlert = true
             cheapestWindow = nil
             return
         }
