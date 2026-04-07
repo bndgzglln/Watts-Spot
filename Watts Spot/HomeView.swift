@@ -112,7 +112,8 @@ struct HomeView: View {
                 colorForEntry: { entry in
                     viewModel.color(for: entry, within: entries)
                 },
-                showNowLine: selectedDay == .today
+                showNowLine: selectedDay == .today,
+                chartDate: selectedDay == .today ? Date() : Calendar.current.date(byAdding: .day, value: 1, to: Date())!
             )
         }
         .padding(18)

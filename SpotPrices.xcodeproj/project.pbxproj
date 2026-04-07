@@ -12,7 +12,7 @@
 		1C8F5D3584BF1304A2C0562A /* ApplianceSchedulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3809600F2AC7C12802E08D4 /* ApplianceSchedulerView.swift */; };
 		1F350A9D83832914872A0B88 /* SpotPriceKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E7755ABBE830367E3DE8E050 /* SpotPriceKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3075E6C40EAD0B85D349728A /* CurrentPriceWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB887AF50CE894601F03E4B1 /* CurrentPriceWidget.swift */; };
-		537E3556EF6D405976C6BAE3 /* SpotPriceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E7755ABBE830367E3DE8E050 /* SpotPriceKit.framework */; };
+		537E3556EF6D405976C6BAE3 /* SpotPriceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E7755ABBE830367E3DE8E050 /* SpotPriceKit.framework */; platformFilter = ios; };
 		5FE17D33E2FE5022C8BFF712 /* PriceChartSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3072BD7C6638AAC6A4DC327E /* PriceChartSection.swift */; };
 		647CBA96FA832F40590458AD /* Translations-en.json in Resources */ = {isa = PBXBuildFile; fileRef = C63110F7000E5D7F098B3A39 /* Translations-en.json */; };
 		6800E2C65CD2D614CBF74641 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D0F89C9A81A2070F0EA8EB /* NotificationManager.swift */; };
@@ -88,7 +88,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		12F000F350FBF4D1A05EE6AB /* PriceWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PriceWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		12F000F350FBF4D1A05EE6AB /* PriceWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PriceWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		13641203A59E4DD4407F7D25 /* EnergyChartsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyChartsAPI.swift; sourceTree = "<group>"; };
 		14C0014882929F1BE58C667D /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
 		172BA0BC8AC4BAA7DFB43631 /* PriceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceApp.swift; sourceTree = "<group>"; };
@@ -97,7 +97,7 @@
 		3072BD7C6638AAC6A4DC327E /* PriceChartSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceChartSection.swift; sourceTree = "<group>"; };
 		33997E03C41E9DE97323F77D /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		36D0F89C9A81A2070F0EA8EB /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
-		451AD729ACEEC964C76ABF59 /* Watts Spot.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Watts Spot.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		451AD729ACEEC964C76ABF59 /* Watts the Price.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Watts the Price.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		45B67B96530811AC21CC5D22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		53CEB3FC1C6C47344E6FCA8D /* Translations-de.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Translations-de.json"; sourceTree = "<group>"; };
 		5FA69A758D9919143AF8371B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -191,7 +191,7 @@
 			children = (
 				12F000F350FBF4D1A05EE6AB /* PriceWidgetExtension.appex */,
 				E7755ABBE830367E3DE8E050 /* SpotPriceKit.framework */,
-				451AD729ACEEC964C76ABF59 /* Watts Spot.app */,
+				451AD729ACEEC964C76ABF59 /* Watts the Price.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -229,9 +229,9 @@
 			productReference = 12F000F350FBF4D1A05EE6AB /* PriceWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		D36021406C4EC6E370C9148F /* Watts Spot */ = {
+		D36021406C4EC6E370C9148F /* Watts the Price */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7B64BB6067622AAAB43958B0 /* Build configuration list for PBXNativeTarget "Watts Spot" */;
+			buildConfigurationList = 7B64BB6067622AAAB43958B0 /* Build configuration list for PBXNativeTarget "Watts the Price" */;
 			buildPhases = (
 				DE672C287E9AF4998EB641C8 /* Sources */,
 				7E8E1FF3BA8770BDA84B78F9 /* Resources */,
@@ -245,11 +245,11 @@
 				F74E432972007DF0D32C3851 /* PBXTargetDependency */,
 				3396C08D0EEF93B763548E7C /* PBXTargetDependency */,
 			);
-			name = "Watts Spot";
+			name = "Watts the Price";
 			packageProductDependencies = (
 			);
 			productName = "Watts Spot";
-			productReference = 451AD729ACEEC964C76ABF59 /* Watts Spot.app */;
+			productReference = 451AD729ACEEC964C76ABF59 /* Watts the Price.app */;
 			productType = "com.apple.product-type.application";
 		};
 		EE7A98959F37B525EC991B2F /* SpotPriceKit */ = {
@@ -308,7 +308,7 @@
 			targets = (
 				5516A5E21D9E86D488768246 /* PriceWidgetExtension */,
 				EE7A98959F37B525EC991B2F /* SpotPriceKit */,
-				D36021406C4EC6E370C9148F /* Watts Spot */,
+				D36021406C4EC6E370C9148F /* Watts the Price */,
 			);
 		};
 /* End PBXProject section */
@@ -382,6 +382,7 @@
 /* Begin PBXTargetDependency section */
 		1D3E78D0C15B6A27B590C64B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = EE7A98959F37B525EC991B2F /* SpotPriceKit */;
 			targetProxy = D2B41BDB79A4BBE2D1888265 /* PBXContainerItemProxy */;
 		};
@@ -405,6 +406,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PriceWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Watts the Price Widget";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -414,6 +416,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.modeleven.Watts-Spot.PriceWidgetExtension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -484,6 +489,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PriceWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Watts the Price Widget";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -493,6 +499,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.modeleven.Watts-Spot.PriceWidgetExtension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -521,6 +530,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.modeleven.SpotPriceKit;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -550,6 +562,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.modeleven.SpotPriceKit;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -569,7 +584,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Watts Spot";
+				INFOPLIST_KEY_CFBundleDisplayName = "Watts the Price";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -582,10 +597,11 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.modeleven.Watts-Spot";
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -675,7 +691,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Watts Spot";
+				INFOPLIST_KEY_CFBundleDisplayName = "Watts the Price";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -688,10 +704,11 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.modeleven.Watts-Spot";
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -706,7 +723,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7B64BB6067622AAAB43958B0 /* Build configuration list for PBXNativeTarget "Watts Spot" */ = {
+		7B64BB6067622AAAB43958B0 /* Build configuration list for PBXNativeTarget "Watts the Price" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AC57955674961ED52A0163AD /* Debug */,

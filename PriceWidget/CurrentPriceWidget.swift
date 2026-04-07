@@ -95,18 +95,28 @@ struct CurrentPriceWidgetEntryView: View {
                 smallWidget
             case .systemMedium, .systemLarge:
                 largeWidget
-            default:
+            case .accessoryCircular:
+                lockScreenCircularWidget
+            case .accessoryRectangular:
+                lockScreenRectangularWidget
+            case .accessoryInline:
+                lockScreenInlineWidget
+            @unknown default:
                 smallWidget
             }
         }
         .containerBackground(for: .widget) {
-            LinearGradient(
-                colors: colorScheme == .dark
-                    ? [Color(red: 0.15, green: 0.15, blue: 0.17), Color(red: 0.12, green: 0.14, blue: 0.18)]
-                    : [Color(red: 0.97, green: 0.99, blue: 0.97), Color(red: 0.90, green: 0.95, blue: 0.98)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            if family == .accessoryCircular || family == .accessoryRectangular || family == .accessoryInline {
+                // Lock screen widgets don't need custom background
+            } else {
+                LinearGradient(
+                    colors: colorScheme == .dark
+                        ? [Color(red: 0.15, green: 0.15, blue: 0.17), Color(red: 0.12, green: 0.14, blue: 0.18)]
+                        : [Color(red: 0.97, green: 0.99, blue: 0.97), Color(red: 0.90, green: 0.95, blue: 0.98)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
         }
     }
 
@@ -295,6 +305,187 @@ struct CurrentPriceWidgetEntryView: View {
         
         return Color(red: red, green: green, blue: blue)
     }
+
+    // MARK: - Lock Screen Widgets
+
+    @ViewBuilder
+    private var lockScreenCircularWidget: some View {
+        if let current = entry.currentPrice,
+           let minPrice = entry.minPrice,
+           let maxPrice = entry.maxPrice {
+            GeometryReader { geometry in
+                let size = min(geometry.size.width, geometry.size.height)
+                let ratio = normalizedRatio(for: current.pricePerMWh, min: minPrice.pricePerMWh, max: maxPrice.pricePerMWh)
+                
+                ZStack {
+                    // Full gauge arc (no background, fills the circular space)
+                    DialArcShape(startRatio: 0, endRatio: 1)
+                        .stroke(
+                            AngularGradient(
+                                gradient: Gradient(colors: [.green, .yellow, .red]),
+                                center: .center,
+                                startAngle: .degrees(150),
+                                endAngle: .degrees(390)
+                            ),
+                            style: StrokeStyle(lineWidth: 5, lineCap: .round)
+                        )
+                        .frame(width: size, height: size)
+                    
+                    // Current value arc overlaid
+                    DialArcShape(startRatio: 0, endRatio: ratio)
+                        .stroke(
+                            AngularGradient(
+                                gradient: Gradient(colors: [.green, .yellow, .red]),
+                                center: .center,
+                                startAngle: .degrees(150),
+                                endAngle: .degrees(390)
+                            ),
+                            style: StrokeStyle(lineWidth: 5, lineCap: .round)
+                        )
+                        .frame(width: size, height: size)
+                    
+                    // Current price indicator dot at the end of the arc
+                    CurrentPriceIndicatorShape(ratio: ratio)
+                        .fill(Color.white)
+                        .frame(width: size, height: size)
+                    
+                    // Price text centered, fits inside the gauge
+                    VStack(spacing: 0) {
+                        Text(current.priceValueText)
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .minimumScaleFactor(0.6)
+                            .lineLimit(1)
+                        
+                        Text("ct")
+                            .font(.system(size: 7))
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(8) // Ensure text stays within gauge bounds
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+            }
+        } else {
+            ZStack {
+                Image(systemName: "bolt.slash")
+                    .font(.title3)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var lockScreenRectangularWidget: some View {
+        if let current = entry.currentPrice,
+           let minPrice = entry.minPrice,
+           let maxPrice = entry.maxPrice {
+            HStack(spacing: 4) {
+                // Left side: Current price (2/3 of width) with trend indicator
+                VStack(alignment: .center, spacing: 2) {
+                    Text(current.priceValueText)
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                    
+                    // Trend indicator - arrow showing if next timeslot is more/less expensive
+                    HStack(spacing: 2) {
+                        if let nextPrice = nextPriceEntry(for: current) {
+                            let isNextMoreExpensive = nextPrice.pricePerMWh > current.pricePerMWh
+                            Image(systemName: isNextMoreExpensive ? "arrow.up.right" : "arrow.down.right")
+                                .font(.system(size: 9, weight: .semibold))
+                                .foregroundStyle(isNextMoreExpensive ? .red : .green)
+                            
+                            Text(nextPrice.priceValueText)
+                                .font(.system(size: 9, weight: .medium, design: .rounded))
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                                .minimumScaleFactor(0.6)
+                        } else {
+                            Text("--")
+                                .font(.system(size: 9))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                Divider()
+                    .frame(height: 36)
+                
+                // Right side: Max (top) and Min (bottom) stacked (1/3 of width)
+                VStack(alignment: .center, spacing: 4) {
+                    // Max price on top
+                    VStack(alignment: .center, spacing: 0) {
+                        Text(maxPrice.priceValueText)
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.red)
+                        
+                        Text("max")
+                            .font(.system(size: 7))
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    Divider()
+                        .frame(width: 30)
+                    
+                    // Min price on bottom
+                    VStack(alignment: .center, spacing: 0) {
+                        Text(minPrice.priceValueText)
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.green)
+                        
+                        Text("min")
+                            .font(.system(size: 7))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .padding(.horizontal, 6)
+        } else if let current = entry.currentPrice {
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(current.priceText)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                    
+                    Text(current.intervalLabel)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
+                
+                Spacer()
+            }
+            .padding(.horizontal, 4)
+        } else {
+            HStack {
+                Image(systemName: "bolt.slash")
+                Text(L10n.text("widget.no_live_data"))
+                    .font(.caption)
+            }
+        }
+    }
+    
+    private func nextPriceEntry(for current: SpotPrice) -> SpotPrice? {
+        guard let currentIndex = entry.todayEntries.firstIndex(where: { $0.id == current.id }),
+              currentIndex + 1 < entry.todayEntries.count else {
+            return nil
+        }
+        return entry.todayEntries[currentIndex + 1]
+    }
+
+    @ViewBuilder
+    private var lockScreenInlineWidget: some View {
+        if let current = entry.currentPrice {
+            Text("\(Image(systemName: "bolt.fill")) \(current.priceText)")
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+        } else {
+            Text("\(Image(systemName: "bolt.slash")) --")
+        }
+    }
 }
 
 struct DialArcShape: Shape {
@@ -319,6 +510,31 @@ struct DialArcShape: Shape {
     }
 }
 
+struct CurrentPriceIndicatorShape: Shape {
+    let ratio: Double
+
+    func path(in rect: CGRect) -> Path {
+        let drawingRect = rect
+        let angle = Angle.degrees(150 + (240 * ratio))
+        let radius = min(drawingRect.width, drawingRect.height) / 2
+        let center = CGPoint(x: drawingRect.midX, y: drawingRect.midY + 2)
+        let radians = CGFloat(angle.radians)
+
+        // Calculate position on the arc
+        let indicatorX = center.x + cos(radians) * radius
+        let indicatorY = center.y + sin(radians) * radius
+
+        var path = Path()
+        path.addEllipse(in: CGRect(
+            x: indicatorX - 3,
+            y: indicatorY - 3,
+            width: 6,
+            height: 6
+        ))
+        return path
+    }
+}
+
 struct CurrentPriceWidget: Widget {
     let kind = "CurrentPriceWidget"
 
@@ -328,6 +544,6 @@ struct CurrentPriceWidget: Widget {
         }
         .configurationDisplayName(L10n.text("widget.configuration_name"))
         .description(L10n.text("widget.configuration_description"))
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }

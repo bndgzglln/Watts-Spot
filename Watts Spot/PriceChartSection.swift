@@ -7,6 +7,7 @@ struct PriceChartSection: View {
     @Binding var selectedEntry: SpotPrice?
     let colorForEntry: (SpotPrice) -> Color
     var showNowLine: Bool = true
+    var chartDate: Date = Date()
     @Environment(\.colorScheme) private var colorScheme
     
     private var averagePrice: Double {
@@ -27,7 +28,7 @@ struct PriceChartSection: View {
     }
     
     private var chartView: some View {
-        let startOfDay = Calendar.current.startOfDay(for: Date())
+        let startOfDay = Calendar.current.startOfDay(for: chartDate)
         let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
         
         return Chart {

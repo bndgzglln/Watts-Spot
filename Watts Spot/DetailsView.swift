@@ -5,6 +5,7 @@ struct DetailsView: View {
     @ObservedObject var viewModel: PriceViewModel
     @Binding var selectedDay: PriceDay
     @Environment(\.colorScheme) private var colorScheme
+    @State private var showPastPrices = false
 
     var body: some View {
         NavigationStack {
@@ -43,17 +44,50 @@ struct DetailsView: View {
 
     private var detailSection: some View {
         let entries = viewModel.entries(for: selectedDay)
+        let currentPriceId = viewModel.currentPrice?.id
+        let (pastEntries, futureEntries) = splitEntries(entries, currentPriceId: currentPriceId, selectedDay: selectedDay)
+        let showPastSection = selectedDay == .today && !pastEntries.isEmpty
 
         return VStack(alignment: .leading, spacing: 12) {
             Text(L10n.text("details.price_details"))
                 .font(.title3.weight(.semibold))
 
-            ForEach(entries) { entry in
-                PriceDetailRow(
-                    entry: entry,
-                    accent: viewModel.color(for: entry, within: entries),
-                    isCurrent: selectedDay == .today && entry.id == viewModel.currentPrice?.id
-                )
+            if entries.isEmpty {
+                ContentUnavailableView(L10n.text("chart.empty_title"), systemImage: "chart.xyaxis.line", description: Text(L10n.text("chart.empty_description")))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 20)
+            } else {
+                if showPastSection {
+                    DisclosureGroup(
+                        isExpanded: $showPastPrices,
+                        content: {
+                            VStack(alignment: .leading, spacing: 8) {
+                                ForEach(pastEntries) { entry in
+                                    PriceDetailRow(
+                                        entry: entry,
+                                        accent: viewModel.color(for: entry, within: entries),
+                                        isCurrent: false
+                                    )
+                                }
+                            }
+                            .padding(.top, 8)
+                        },
+                        label: {
+                            Text(L10n.text("details.past_prices"))
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(.secondary)
+                        }
+                    )
+                    .disclosureGroupStyle(PastPricesDisclosureStyle())
+                }
+
+                ForEach(futureEntries) { entry in
+                    PriceDetailRow(
+                        entry: entry,
+                        accent: viewModel.color(for: entry, within: entries),
+                        isCurrent: selectedDay == .today && entry.id == currentPriceId
+                    )
+                }
             }
         }
         .padding(18)
@@ -64,6 +98,58 @@ struct DetailsView: View {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .stroke(colorScheme == .dark ? Color.white.opacity(0.2) : Color.white.opacity(0.45), lineWidth: 1)
         )
+    }
+
+    private func splitEntries(_ entries: [SpotPrice], currentPriceId: Date?, selectedDay: PriceDay) -> (past: [SpotPrice], future: [SpotPrice]) {
+        // For tomorrow, show all entries as future (no past/future split)
+        if selectedDay == .tomorrow {
+            return ([], entries)
+        }
+
+        guard let currentPriceId = currentPriceId else {
+            return ([], entries)
+        }
+
+        var past: [SpotPrice] = []
+        var future: [SpotPrice] = []
+        var foundCurrent = false
+
+        for entry in entries {
+            if entry.id == currentPriceId {
+                foundCurrent = true
+                future.append(entry)
+            } else if foundCurrent {
+                future.append(entry)
+            } else {
+                past.append(entry)
+            }
+        }
+
+        return (past, future)
+    }
+
+    struct PastPricesDisclosureStyle: DisclosureGroupStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            VStack(alignment: .leading, spacing: 0) {
+                Button(action: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        configuration.isExpanded.toggle()
+                    }
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: configuration.isExpanded ? "chevron.down" : "chevron.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        configuration.label
+                    }
+                }
+                .buttonStyle(.plain)
+
+                if configuration.isExpanded {
+                    configuration.content
+                }
+            }
+        }
     }
 
     private var cheapestSection: some View {
