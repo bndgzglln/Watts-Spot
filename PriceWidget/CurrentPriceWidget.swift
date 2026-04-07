@@ -129,16 +129,16 @@ struct CurrentPriceWidgetEntryView: View {
             {
                 let width = geometry.size.width
                 let height = geometry.size.height
-                let gaugeSize = min(width, height) * 0.8
-                let lineWidth: CGFloat = 12
+                let gaugeSize = min(width, height) * 0.75
+                let lineWidth: CGFloat = 10
                 let ratio = normalizedRatio(for: current.pricePerMWh, min: minPrice.pricePerMWh, max: maxPrice.pricePerMWh)
 
-                VStack(spacing: 0) {
+                VStack(spacing: 2) {
                     ZStack {
                         DialArcShape(startRatio: 0, endRatio: 1)
                             .stroke(
                                 AngularGradient(
-                                    gradient: Gradient(colors: [.green, .gray, .red]),
+                                    gradient: Gradient(colors: [.green, .gray, .orange]),
                                     center: .center,
                                     startAngle: .degrees(150),
                                     endAngle: .degrees(390)
@@ -150,7 +150,7 @@ struct CurrentPriceWidgetEntryView: View {
                         DialArcShape(startRatio: 0, endRatio: ratio)
                             .stroke(
                                 AngularGradient(
-                                    gradient: Gradient(colors: [.green, .gray, .red]),
+                                    gradient: Gradient(colors: [.green, .gray, .orange]),
                                     center: .center,
                                     startAngle: .degrees(150),
                                     endAngle: .degrees(390)
@@ -158,10 +158,27 @@ struct CurrentPriceWidgetEntryView: View {
                                 style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                             )
 
-                        Text(current.priceValueText)
-                            .font(.system(size: 26, weight: .bold, design: .rounded))
-                            .monospacedDigit()
-                            .lineLimit(1)
+                        VStack(spacing: 0) {
+                            Text(current.priceValueText)
+                                .font(.system(size: 22, weight: .bold, design: .rounded))
+                                .monospacedDigit()
+                                .lineLimit(1)
+                            
+                            // Trend indicator - arrow showing if next timeslot is more/less expensive
+                            HStack(spacing: 2) {
+                                if let nextPrice = nextPriceEntry(for: current) {
+                                    let isNextMoreExpensive = nextPrice.pricePerMWh > current.pricePerMWh
+                                    Image(systemName: isNextMoreExpensive ? "arrow.up.right" : "arrow.down.right")
+                                        .font(.system(size: 9, weight: .semibold))
+                                        .foregroundStyle(isNextMoreExpensive ? .red : .green)
+                                    
+                                    Text(nextPrice.priceValueText)
+                                        .font(.system(size: 9, weight: .medium, design: .rounded))
+                                        .monospacedDigit()
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
                     }
                     .frame(width: gaugeSize, height: gaugeSize)
 
@@ -183,7 +200,7 @@ struct CurrentPriceWidgetEntryView: View {
                                 .foregroundStyle(.secondary)
                             Text(maxPrice.priceValueText)
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(.red)
+                                .foregroundStyle(.orange)
                         }
                     }
                     .padding(.horizontal, 8)
@@ -192,7 +209,7 @@ struct CurrentPriceWidgetEntryView: View {
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                 }
-                .frame(width: width, height: height)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } else {
                 unavailableView
             }
@@ -322,7 +339,7 @@ struct CurrentPriceWidgetEntryView: View {
                     DialArcShape(startRatio: 0, endRatio: 1)
                         .stroke(
                             AngularGradient(
-                                gradient: Gradient(colors: [.green, .yellow, .red]),
+                                gradient: Gradient(colors: [.green, .orange]),
                                 center: .center,
                                 startAngle: .degrees(150),
                                 endAngle: .degrees(390)
@@ -335,7 +352,7 @@ struct CurrentPriceWidgetEntryView: View {
                     DialArcShape(startRatio: 0, endRatio: ratio)
                         .stroke(
                             AngularGradient(
-                                gradient: Gradient(colors: [.green, .yellow, .red]),
+                                gradient: Gradient(colors: [.green, .orange]),
                                 center: .center,
                                 startAngle: .degrees(150),
                                 endAngle: .degrees(390)
@@ -500,7 +517,7 @@ struct DialArcShape: Shape {
 
         var path = Path()
         path.addArc(
-            center: CGPoint(x: drawingRect.midX, y: drawingRect.midY + 2),
+            center: CGPoint(x: drawingRect.midX, y: drawingRect.midY),
             radius: min(drawingRect.width, drawingRect.height) / 2,
             startAngle: startAngle,
             endAngle: endAngle,
@@ -517,7 +534,7 @@ struct CurrentPriceIndicatorShape: Shape {
         let drawingRect = rect
         let angle = Angle.degrees(150 + (240 * ratio))
         let radius = min(drawingRect.width, drawingRect.height) / 2
-        let center = CGPoint(x: drawingRect.midX, y: drawingRect.midY + 2)
+        let center = CGPoint(x: drawingRect.midX, y: drawingRect.midY)
         let radians = CGFloat(angle.radians)
 
         // Calculate position on the arc
