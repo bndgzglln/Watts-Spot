@@ -92,10 +92,12 @@ struct ApplianceSchedulerView: View {
                         .foregroundStyle(.secondary)
                     
                     Picker("", selection: $viewModel.selectedDayFilter) {
-                        Text(L10n.text("price.today")).tag(DayFilter.today)
-                        if !priceViewModel.tomorrowEntries.isEmpty {
-                            Text(L10n.text("price.day_ahead")).tag(DayFilter.tomorrow)
+                        if priceViewModel.tomorrowEntries.isEmpty {
+                            Text(L10n.text("price.today")).tag(DayFilter.today)
+                        } else {
                             Text(L10n.text("scheduler.all_days")).tag(DayFilter.all)
+                            Text(L10n.text("price.today")).tag(DayFilter.today)
+                            Text(L10n.text("price.day_ahead")).tag(DayFilter.tomorrow)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -708,7 +710,7 @@ struct ShortcutEditorView: View {
 final class ApplianceSchedulerViewModel: ObservableObject {
     @Published var shortcuts: [ApplianceShortcut] = []
     @Published var selectedDurationMinutes: Int = 60
-    @Published var selectedDayFilter: DayFilter = .today
+    @Published var selectedDayFilter: DayFilter = .all
     @Published var cheapestWindow: CheapestWindow?
     @Published var isSearching: Bool = false
     @Published var showingShortcutEditor: Bool = false
