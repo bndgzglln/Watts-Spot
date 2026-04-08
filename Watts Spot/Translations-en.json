@@ -83,6 +83,8 @@
   "scheduler.tomorrow_not_available": "Tomorrow's prices not available yet. Check back later.",
   "scheduler.error_outside_data_range_title": "Time Window Outside Available Data",
   "scheduler.error_outside_data_range_message": "The selected time window extends beyond the available price data. Please adjust your selection to fit within the available time range.",
+  "scheduler.error_past_time_title": "Invalid Time Selection",
+  "scheduler.error_past_time_message": "You cannot schedule an appliance to start or finish in the past. Please select a future time.",
   "scheduler.find_cheapest": "Find Cheapest Window",
   "scheduler.search_time_range": "Search time range",
   "scheduler.start_at": "Start at",

@@ -92,10 +92,12 @@ struct ApplianceSchedulerView: View {
                         .foregroundStyle(.secondary)
                     
                     Picker("", selection: $viewModel.selectedDayFilter) {
-                        Text(L10n.text("price.today")).tag(DayFilter.today)
-                        if !priceViewModel.tomorrowEntries.isEmpty {
-                            Text(L10n.text("price.day_ahead")).tag(DayFilter.tomorrow)
+                        if priceViewModel.tomorrowEntries.isEmpty {
+                            Text(L10n.text("price.today")).tag(DayFilter.today)
+                        } else {
                             Text(L10n.text("scheduler.all_days")).tag(DayFilter.all)
+                            Text(L10n.text("price.today")).tag(DayFilter.today)
+                            Text(L10n.text("price.day_ahead")).tag(DayFilter.tomorrow)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -116,6 +118,7 @@ struct ApplianceSchedulerView: View {
                 
                 Button {
                     let timeConstraint = viewModel.timeConstraint(for: priceViewModel)
+                    guard timeConstraint.isValid else { return }
                     viewModel.findCheapestWindow(
                         entriesProvider: { priceViewModel.entries(for: viewModel.selectedDayFilter) },
                         preferredStartTime: timeConstraint.start,
@@ -162,6 +165,7 @@ struct ApplianceSchedulerView: View {
                         ShortcutRowView(shortcut: shortcut) {
                             viewModel.selectedDurationMinutes = shortcut.durationMinutes
                             let timeConstraint = viewModel.timeConstraint(for: priceViewModel)
+                            guard timeConstraint.isValid else { return }
                             viewModel.findCheapestWindow(
                                 entriesProvider: { priceViewModel.entries(for: viewModel.selectedDayFilter) },
                                 preferredStartTime: timeConstraint.start,
@@ -706,7 +710,7 @@ struct ShortcutEditorView: View {
 final class ApplianceSchedulerViewModel: ObservableObject {
     @Published var shortcuts: [ApplianceShortcut] = []
     @Published var selectedDurationMinutes: Int = 60
-    @Published var selectedDayFilter: DayFilter = .today
+    @Published var selectedDayFilter: DayFilter = .all
     @Published var cheapestWindow: CheapestWindow?
     @Published var isSearching: Bool = false
     @Published var showingShortcutEditor: Bool = false
@@ -740,20 +744,21 @@ final class ApplianceSchedulerViewModel: ObservableObject {
         loadShortcuts()
     }
     
-    func timeConstraint(for priceViewModel: PriceViewModel) -> (start: Date?, end: Date?) {
+    func timeConstraint(for priceViewModel: PriceViewModel) -> (start: Date?, end: Date?, isValid: Bool) {
         let calendar = Calendar.current
+        let now = Date()
         let timeComponents = calendar.dateComponents([.hour, .minute], from: quickStartTime)
         
         // Determine the base date based on selected day filter
         let baseDate: Date
         switch selectedDayFilter {
         case .today:
-            baseDate = calendar.startOfDay(for: Date())
+            baseDate = calendar.startOfDay(for: now)
         case .tomorrow:
-            baseDate = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: Date())) ?? Date()
+            baseDate = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) ?? now
         case .all:
             // For "all days", use today's date as base
-            baseDate = calendar.startOfDay(for: Date())
+            baseDate = calendar.startOfDay(for: now)
         }
         
         // Combine base date with selected time
@@ -762,12 +767,48 @@ final class ApplianceSchedulerViewModel: ObservableObject {
         combinedComponents.minute = timeComponents.minute
         let constrainedTime = calendar.date(from: combinedComponents) ?? quickStartTime
         
+        // Helper function to check if a time is in the past (comparing only hour and minute)
+        func isTimeInPast(_ time: Date) -> Bool {
+            let timeComponents = calendar.dateComponents([.hour, .minute], from: time)
+            let nowComponents = calendar.dateComponents([.hour, .minute], from: now)
+            
+            let timeMinutes = (timeComponents.hour ?? 0) * 60 + (timeComponents.minute ?? 0)
+            let nowMinutes = (nowComponents.hour ?? 0) * 60 + (nowComponents.minute ?? 0)
+            
+            // If same day, compare by minutes since midnight
+            if calendar.isDate(time, inSameDayAs: now) {
+                return timeMinutes < nowMinutes
+            }
+            // Different day - just compare the dates
+            return time < now
+        }
+        
         if isQuickStartEndFixed {
+            // Finish by: check that end time is not in the past
+            // AND that start time (end - duration) is also not in the past
+            let durationInterval = TimeInterval(selectedDurationMinutes * 60)
+            let requiredStartTime = constrainedTime.addingTimeInterval(-durationInterval)
+            
+            if isTimeInPast(constrainedTime) || isTimeInPast(requiredStartTime) {
+                errorAlertTitle = L10n.text("scheduler.error_past_time_title")
+                errorAlertMessage = L10n.text("scheduler.error_past_time_message")
+                showingErrorAlert = true
+                return (start: nil, end: nil, isValid: false)
+            }
+            
             // Finish by: return end time constraint
-            return (start: nil, end: constrainedTime)
+            return (start: nil, end: constrainedTime, isValid: true)
         } else {
+            // Start at: check that start time is not in the past (comparing hour:minute only)
+            if isTimeInPast(constrainedTime) {
+                errorAlertTitle = L10n.text("scheduler.error_past_time_title")
+                errorAlertMessage = L10n.text("scheduler.error_past_time_message")
+                showingErrorAlert = true
+                return (start: nil, end: nil, isValid: false)
+            }
+            
             // Start at: return start time constraint
-            return (start: constrainedTime, end: nil)
+            return (start: constrainedTime, end: nil, isValid: true)
         }
     }
     

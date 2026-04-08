@@ -83,6 +83,8 @@
   "scheduler.tomorrow_not_available": "Preise von Morgen sind noch nicht verfügbar. Bitte später erneut prüfen.",
   "scheduler.error_outside_data_range_title": "Zeitfenster außerhalb verfügbarer Daten",
   "scheduler.error_outside_data_range_message": "Das gewählte Zeitfenster liegt außerhalb der verfügbaren Preisdaten. Bitte passe deine Auswahl an, damit sie in den verfügbaren Zeitraum passt.",
+  "scheduler.error_past_time_title": "Ungültige Zeitangabe",
+  "scheduler.error_past_time_message": "Du kannst ein Gerät nicht in der Vergangenheit starten oder beenden lassen. Bitte wähle eine zukünftige Zeit.",
   "scheduler.find_cheapest": "Günstigste Zeit finden",
   "scheduler.search_time_range": "Such-Zeitfenster",
   "scheduler.start_at": "Start um",
