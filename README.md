@@ -26,5 +26,3 @@ SwiftUI iPhone app for Austria spot electricity prices using the Energy Charts A
 
 - Prices from the API are delivered in `EUR/MWh`; the UI also converts them to `ct/kWh`.
 - Time grouping uses the `Europe/Vienna` timezone so "today" and "day-ahead" align with Austria.
-
-asfasf
