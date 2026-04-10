@@ -29,6 +29,7 @@
 		9E50700F9A2EF23BE1E62B40 /* Translations-de.json in Resources */ = {isa = PBXBuildFile; fileRef = 53CEB3FC1C6C47344E6FCA8D /* Translations-de.json */; };
 		A3FFC0030395C1C3AFE1F125 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF4CAB88FFF74782C3B13709 /* Assets.xcassets */; };
 		A734929866A7955F4287B531 /* SpotPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7AA02F20EDD6F7224E05C3 /* SpotPrice.swift */; };
+		AEA203416F087FE567F405FF /* icon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 4E7FBBF42262A653A6948976 /* icon.icon */; };
 		B4714A0A4501BD6F86D9028D /* PriceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A88F45A4D3CCB72D247443A /* PriceViewModel.swift */; };
 		CA89E0876E7D34D94906931B /* SchedulerNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70470B024328C5104F21D424 /* SchedulerNotificationManager.swift */; };
 		CCE0915D23779B3280D14097 /* SpotPriceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E7755ABBE830367E3DE8E050 /* SpotPriceKit.framework */; };
@@ -102,6 +103,7 @@
 		42946380B9EFB1514E7A4B84 /* BackgroundRefreshManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRefreshManager.swift; sourceTree = "<group>"; };
 		451AD729ACEEC964C76ABF59 /* Watts Spot.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Watts Spot.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		45B67B96530811AC21CC5D22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4E7FBBF42262A653A6948976 /* icon.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = icon.icon; sourceTree = "<group>"; };
 		53CEB3FC1C6C47344E6FCA8D /* Translations-de.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Translations-de.json"; sourceTree = "<group>"; };
 		5FA69A758D9919143AF8371B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		70470B024328C5104F21D424 /* SchedulerNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerNotificationManager.swift; sourceTree = "<group>"; };
@@ -152,6 +154,7 @@
 				5FA69A758D9919143AF8371B /* ContentView.swift */,
 				23DA9696DAE26607B01AC0B6 /* DetailsView.swift */,
 				33997E03C41E9DE97323F77D /* HomeView.swift */,
+				4E7FBBF42262A653A6948976 /* icon.icon */,
 				36D0F89C9A81A2070F0EA8EB /* NotificationManager.swift */,
 				172BA0BC8AC4BAA7DFB43631 /* PriceApp.swift */,
 				9F96A7FDD19EF7E520C3C048 /* PriceCacheManager.swift */,
@@ -327,6 +330,7 @@
 				681D2144E9323409FB024FB5 /* Assets.xcassets in Resources */,
 				9E50700F9A2EF23BE1E62B40 /* Translations-de.json in Resources */,
 				647CBA96FA832F40590458AD /* Translations-en.json in Resources */,
+				AEA203416F087FE567F405FF /* icon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

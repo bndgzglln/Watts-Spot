@@ -48,7 +48,6 @@ targets:
       - path: Watts Spot
         excludes:
           - "widget/**"
-          - "icon.icon/**"
     resources:
       - path: Watts Spot/Translations-*.json
     settings:
