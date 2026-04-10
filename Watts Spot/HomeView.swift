@@ -24,6 +24,9 @@ struct HomeView: View {
                     }
                     .padding(20)
                 }
+                .refreshable {
+                    await viewModel.manualRefresh(regionCode: selectedRegionCode)
+                }
             }
             .navigationTitle(L10n.text("home.navigation_title"))
         }

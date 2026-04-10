@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import WidgetKit
 import SpotPriceKit
 
 @MainActor
@@ -9,6 +10,7 @@ final class PriceViewModel: ObservableObject {
         let end: Date
         let averagePricePerKWh: Double
         let minPricePerKWh: Double
+        let maxPricePerKWh: Double
 
         var id: Date { start }
 
@@ -27,6 +29,13 @@ final class PriceViewModel: ObservableObject {
             L10n.format(
                 "price.low_suffix",
                 (minPricePerKWh * 100).formatted(.number.precision(.fractionLength(2)))
+            )
+        }
+        
+        var maxPriceText: String {
+            L10n.format(
+                "price.high_suffix",
+                (maxPricePerKWh * 100).formatted(.number.precision(.fractionLength(2)))
             )
         }
     }
@@ -54,6 +63,11 @@ final class PriceViewModel: ObservableObject {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "Europe/Vienna") ?? .current
         self.calendar = calendar
+        
+        // Load cached data immediately on initialization
+        if let cachedPrices = PriceCacheManager.shared.getCachedPrices() {
+            distribute(cachedPrices, now: Date())
+        }
     }
 
     var availableDays: [PriceDay] {
@@ -93,13 +107,42 @@ final class PriceViewModel: ObservableObject {
         )
     }
 
-    func loadPrices(regionCode: String = "AT", now: Date = .now) async {
+    /// Loads prices from cache or API based on timing rules
+    /// - Parameters:
+    ///   - regionCode: The region to fetch prices for
+    ///   - now: Current date
+    ///   - forceRefresh: If true, always fetch from API (for manual refresh)
+    func loadPrices(regionCode: String = "AT", now: Date = .now, forceRefresh: Bool = false) async {
         isLoading = true
         defer { isLoading = false }
-
+        
+        currentRegionCode = regionCode
+        
+        // Check if we should use cached data or fetch from API
+        let shouldFetchAPI = forceRefresh || PriceCacheManager.shared.shouldFetchFromAPI(regionCode: regionCode, now: now)
+        
+        if !shouldFetchAPI {
+            // Use cached data
+            if let cachedPrices = PriceCacheManager.shared.getCachedPrices() {
+                print("[PriceViewModel] Using cached prices")
+                distribute(cachedPrices, now: now)
+                // Still reload widgets to update UI
+                WidgetCenter.shared.reloadTimelines(ofKind: "CurrentPriceWidget")
+                errorMessage = nil
+                return
+            }
+            // If cache is empty but we didn't think we needed API, fetch anyway
+        }
+        
+        // Fetch from API
         do {
-            currentRegionCode = regionCode
+            print("[PriceViewModel] Fetching prices from API")
+            PriceCacheManager.shared.recordFetchAttempt()
             let prices = try await api.fetchPrices(for: regionCode)
+            
+            // Cache the results
+            PriceCacheManager.shared.cachePrices(prices, regionCode: regionCode)
+            
             distribute(prices, now: now)
             try await notificationManager.syncNotifications(
                 withTomorrowEntries: tomorrowEntries,
@@ -107,8 +150,35 @@ final class PriceViewModel: ObservableObject {
             )
             notificationsEnabled = notificationManager.isEnabled
             errorMessage = nil
+            
+            // Reload widgets to reflect new data
+            WidgetCenter.shared.reloadTimelines(ofKind: "CurrentPriceWidget")
+            
         } catch {
-            errorMessage = error.localizedDescription
+            // If API fails, try to use cached data as fallback
+            if let cachedPrices = PriceCacheManager.shared.getCachedPrices() {
+                print("[PriceViewModel] API failed, using cached prices as fallback")
+                distribute(cachedPrices, now: now)
+                WidgetCenter.shared.reloadTimelines(ofKind: "CurrentPriceWidget")
+                errorMessage = nil
+            } else {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    /// Performs a manual refresh - always fetches from API
+    func manualRefresh(regionCode: String = "AT", now: Date = .now) async {
+        PriceCacheManager.shared.forceRefresh()
+        await loadPrices(regionCode: regionCode, now: now, forceRefresh: true)
+    }
+    
+    /// Refreshes UI from cache without API call (for background updates)
+    func refreshFromCache(now: Date = .now) {
+        if let cachedPrices = PriceCacheManager.shared.getCachedPrices() {
+            distribute(cachedPrices, now: now)
+            WidgetCenter.shared.reloadTimelines(ofKind: "CurrentPriceWidget")
+            print("[PriceViewModel] Refreshed from cache and reloaded widgets")
         }
     }
 
@@ -202,7 +272,8 @@ final class PriceViewModel: ObservableObject {
                     start: cheapestEntry.timestamp,
                     end: cheapestEntry.intervalEnd,
                     averagePricePerKWh: cheapestEntry.pricePerKWh,
-                    minPricePerKWh: cheapestEntry.pricePerKWh
+                    minPricePerKWh: cheapestEntry.pricePerKWh,
+                    maxPricePerKWh: cheapestEntry.pricePerKWh
                 )
             ]
         }
@@ -270,7 +341,8 @@ final class PriceViewModel: ObservableObject {
         guard
             let first = entries.first,
             let last = entries.last,
-            let minPrice = entries.map(\.pricePerKWh).min()
+            let minPrice = entries.map(\.pricePerKWh).min(),
+            let maxPrice = entries.map(\.pricePerKWh).max()
         else {
             return nil
         }
@@ -280,7 +352,8 @@ final class PriceViewModel: ObservableObject {
             start: first.timestamp,
             end: last.intervalEnd,
             averagePricePerKWh: average,
-            minPricePerKWh: minPrice
+            minPricePerKWh: minPrice,
+            maxPricePerKWh: maxPrice
         )
     }
 }

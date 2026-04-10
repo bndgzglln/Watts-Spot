@@ -154,25 +154,22 @@ struct DetailsView: View {
 
     private var cheapestSection: some View {
         let windows = viewModel.lowPriceWindows(for: selectedDay)
-        let headline = selectedDay == .today ? L10n.text("details.best_low_price_today") : L10n.text("details.best_low_price_tomorrow")
+        let dayEntries = viewModel.entries(for: selectedDay)
+        let dayStats = calculateDayStats(from: dayEntries)
 
-        return VStack(alignment: .leading, spacing: 10) {
-            Text(headline)
-                .font(.headline)
+        return VStack(alignment: .leading, spacing: 16) {
+            // Day Statistics - Hard Facts
+            dayStatsSection(stats: dayStats)
 
-            if let primaryWindow = windows.first {
-                Text(primaryWindow.title)
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
-                    .monospacedDigit()
+            // Best Windows Section
+            if !windows.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(L10n.text("details.best_times"))
+                        .font(.headline)
 
-                Text("\(primaryWindow.averagePriceText) • \(primaryWindow.minPriceText)")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                ForEach(Array(windows.dropFirst().enumerated()), id: \.offset) { index, window in
-                    Text(L10n.format("details.also_good", window.title, window.averagePriceText))
-                        .font(.footnote)
-                        .foregroundStyle(index == 0 ? .secondary : .tertiary)
+                    ForEach(Array(windows.prefix(3).enumerated()), id: \.offset) { index, window in
+                        windowRow(window: window, index: index)
+                    }
                 }
             } else {
                 Text(L10n.text("details.no_data"))
@@ -188,6 +185,108 @@ struct DetailsView: View {
         .overlay(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .stroke(colorScheme == .dark ? Color.white.opacity(0.2) : Color.white.opacity(0.45), lineWidth: 1)
+        )
+    }
+
+    private func dayStatsSection(stats: DayStats) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(stats.headline)
+                .font(.headline)
+
+            if stats.hasData {
+                // High / Avg / Low in a row
+                HStack(spacing: 16) {
+                    statColumn(title: L10n.text("details.stat_high"), value: stats.highText, color: .red)
+                    Divider()
+                        .frame(height: 40)
+                    statColumn(title: L10n.text("details.stat_avg"), value: stats.avgText, color: .orange)
+                    Divider()
+                        .frame(height: 40)
+                    statColumn(title: L10n.text("details.stat_low"), value: stats.lowText, color: .green)
+                }
+            } else {
+                Text(L10n.text("details.no_data"))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func statColumn(title: String, value: String, color: Color) -> some View {
+        VStack(spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(color)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func windowRow(window: PriceViewModel.LowPriceWindow, index: Int) -> some View {
+        let isSingleSlot = window.start == window.end.addingTimeInterval(-15 * 60)
+
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(window.title)
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+
+                Spacer()
+
+                if index == 0 {
+                    Text(L10n.text("details.best"))
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.green.opacity(0.2))
+                        .foregroundStyle(.green)
+                        .cornerRadius(4)
+                }
+            }
+
+            // For single 15-min slots, all values are the same, so just show one
+            if isSingleSlot {
+                Text(window.averagePriceText)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("\(window.maxPriceText) / \(window.averagePriceText) / \(window.minPriceText)")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+
+    private struct DayStats {
+        let headline: String
+        let highText: String
+        let avgText: String
+        let lowText: String
+        let hasData: Bool
+    }
+
+    private func calculateDayStats(from entries: [SpotPrice]) -> DayStats {
+        guard !entries.isEmpty,
+              let minPrice = entries.map(\.pricePerKWh).min(),
+              let maxPrice = entries.map(\.pricePerKWh).max() else {
+            return DayStats(headline: L10n.text("details.no_data"), highText: "", avgText: "", lowText: "", hasData: false)
+        }
+
+        let avg = entries.map(\.pricePerKWh).reduce(0, +) / Double(entries.count)
+        let highValue = (maxPrice * 100).formatted(.number.precision(.fractionLength(2)))
+        let avgValue = (avg * 100).formatted(.number.precision(.fractionLength(2)))
+        let lowValue = (minPrice * 100).formatted(.number.precision(.fractionLength(2)))
+
+        return DayStats(
+            headline: selectedDay == .today ? L10n.text("details.today_stats") : L10n.text("details.tomorrow_stats"),
+            highText: "\(highValue) ct",
+            avgText: "\(avgValue) ct",
+            lowText: "\(lowValue) ct",
+            hasData: true
         )
     }
 }

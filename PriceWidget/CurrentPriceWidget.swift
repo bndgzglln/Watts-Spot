@@ -42,8 +42,44 @@ struct CurrentPriceProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<CurrentPriceEntry>) -> Void) {
         Task {
             let entry = await makeEntry()
-            let nextRefresh = calendar.date(byAdding: .minute, value: 15, to: Date()) ?? Date().addingTimeInterval(15 * 60)
+            let nextRefresh = calculateNextRefreshDate()
             completion(Timeline(entries: [entry], policy: .after(nextRefresh)))
+        }
+    }
+    
+    /// Calculates the optimal next refresh time based on current time and hour boundaries
+    /// - Active hours (6:00 - 22:00): Every 5 minutes for near real-time updates
+    /// - Night hours (22:00 - 6:00): Every 30 minutes to save battery
+    private func calculateNextRefreshDate() -> Date {
+        let now = Date()
+        let currentHour = calendar.component(.hour, from: now)
+        let currentMinute = calendar.component(.minute, from: now)
+        
+        // During active hours (6:00 - 22:00), refresh every 5 minutes
+        if currentHour >= 6 && currentHour < 22 {
+            // Round to next 5-minute boundary for aligned updates
+            let nextFiveMin = ((currentMinute / 5) + 1) * 5
+            if nextFiveMin < 60 {
+                return calendar.date(bySettingHour: currentHour, minute: nextFiveMin, second: 0, of: now)
+                    ?? now.addingTimeInterval(5 * 60)
+            } else {
+                return calendar.date(bySettingHour: currentHour + 1, minute: 0, second: 0, of: now)
+                    ?? now.addingTimeInterval(5 * 60)
+            }
+        }
+        // During night hours (22:00 - 6:00), refresh every 30 minutes to save battery
+        else {
+            let nextHalfHour = currentMinute < 30 ? 30 : 0
+            let nextHour = currentMinute < 30 ? currentHour : currentHour + 1
+            
+            if nextHour < 24 {
+                return calendar.date(bySettingHour: nextHour, minute: nextHalfHour, second: 0, of: now)
+                    ?? now.addingTimeInterval(30 * 60)
+            } else {
+                let tomorrow = calendar.date(byAdding: .day, value: 1, to: now)!
+                return calendar.date(bySettingHour: 6, minute: 0, second: 0, of: tomorrow)
+                    ?? now.addingTimeInterval(30 * 60)
+            }
         }
     }
 
